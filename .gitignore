@@ -4,6 +4,10 @@
 # Allow specific GitHub Copilot related files and folders
 !.copilot/
 !.github/copilot/
+!.github/prompts/
+!.github/instructions/
+!.github/chatmodes/
+!.github/copilot-*
 !copilot/
 !instructions/
 !prompts/
@@ -136,31 +140,9 @@ settings.json
 secrets/
 .secrets/
 
-# Ignore everything by default, then whitelist
-*
-
-# Whitelist GitHub Copilot related patterns
-!*/copilot/**
-!**/github-copilot/**
-!**/.copilot/**
-!**/copilot-*
-!**/*copilot*
-!**/instructions/**
-!**/prompts/**
-!**/examples/**
-!**/templates/**
-!**/*.copilot.*
-!**/README*
-!**/readme*
-!**/LICENSE*
-!**/license*
-!**/.gitignore
-!**/docs/**
-!**/*.md
-!**/*.txt
-!**/*.json
-!**/*.yaml
-!**/*.yml
+# Additional whitelist patterns for broader matching
+!.github/
+!.github/**
 
 # But ignore config files that might contain sensitive data
 config.json
