@@ -9,7 +9,7 @@ tested_with: 'GitHub Copilot Chat (GPT-4o) - Validated July 20, 2025'
 
 Expert PostgreSQL guidance for ${selection} (or entire project if no selection). Focus on PostgreSQL-specific features, optimization patterns, and advanced capabilities.
 
-## � PostgreSQL-Specific Features
+## PostgreSQL-Specific Features
 
 ### JSONB Operations
 ```sql
