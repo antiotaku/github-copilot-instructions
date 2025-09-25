@@ -4,6 +4,10 @@
 # Allow specific GitHub Copilot related files and folders
 !.copilot/
 !.github/copilot/
+!.github/prompts/
+!.github/instructions/
+!.github/chatmodes/
+!.github/copilot-*
 !copilot/
 !instructions/
 !prompts/
