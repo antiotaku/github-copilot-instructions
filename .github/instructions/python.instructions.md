@@ -1,5 +1,3 @@
-#
-
 # Default Python Project Folder Structures
 
 ## 1. Single Application (Always Has CLI Entry)
