@@ -935,7 +935,7 @@ uv add git+https://gitlab+deploy-token-username:deploy_token@gitlab.com/group/re
 #### Security Considerations
 ```bash
 # Pin to specific commits for security (recommended for production)
-uv add git+https://github.com/user/repo.git@abc123def456789
+uv add git+https://github.com/user/repo.git@4a7d1ed414474e4033ac29ccb8653d9b00e3e819
 
 # Verify repository authenticity before adding
 git ls-remote https://github.com/user/repo.git
