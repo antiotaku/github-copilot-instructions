@@ -124,10 +124,10 @@ applyTo: '**/*.py'
 
 ### 🔍 Practical Guidelines
 - Function signatures: All public APIs must have complete type hints.
-
 - Error handling: Custom exceptions should inherit from `Exception` and provide clear messages.
 - Testing: Combine type checking (`mypy`/`pyright`), linting (`flake8`, `ruff`), and unit tests.
 - Consistency: Enforce a formatter (`black` or `ruff`) and import sorter (`isort` or `ruff`).
+- Source code MUST be free of type checking/linting errors.
 
 ---
 
