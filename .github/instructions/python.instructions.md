@@ -1,155 +1,182 @@
-# Default Python Project Folder Structures
-
-## 1. Single Application (Always Has CLI Entry)
-
-```
-myapp/
-├── myapp/             # Application code
-│   ├── __init__.py
-│   └── ...
-├── tests/
-├── pyproject.toml
-├── README.md
-├── scripts/           # (Optional) CLI scripts or entry points
-└── ...
-```
-**Notes:**
-- The application must define a CLI entry point (e.g., via `scripts` or `entry_points.console_scripts` in `pyproject.toml`).
-
-## 2. Library (Never Has CLI Entry)
-
-```
-mylib/
-├── mylib/             # Library code
-│   ├── __init__.py
-│   └── ...
-├── tests/
-├── pyproject.toml
-├── README.md
-└── ...
-```
-**Notes:**
-- A library must not define any CLI entry points. It is intended for import/use by other code.
-
-## 3. Package (May Have CLI Entry)
-
-```
-mypkg/
-├── mypkg/             # Package code
-│   ├── __init__.py
-│   └── ...
-├── tests/
-├── pyproject.toml
-├── README.md
-├── scripts/           # (Optional) CLI scripts or entry points
-└── ...
-```
-**Notes:**
-- A package may define CLI entry points, but it is not required. If present, use `scripts/` or `entry_points.console_scripts` in `pyproject.toml`.
-
-## Multiple Distribution (PEP 420) with astron Namespace
-
-For any astron-*** project, use the following layout:
-
-```
-astron-foo/
-├── astron/            # Namespace folder (NO __init__.py)
-│   └── foo/           # Subpackage for this distribution
-│       ├── __init__.py
-│       └── ...
-├── tests/
-├── pyproject.toml
-├── README.md
-├── scripts/           # (Optional) CLI scripts or entry points (if package or app)
-└── ...
-```
-**Notes:**
-- The astron namespace is shared by all astron-*** projects. Each distribution provides its own subpackage under `astron/`.
-- Only packages or applications should define CLI entry points; libraries must not.
-
-When multiple astron-*** projects are installed, they all share the astron namespace:
-
-```
-site-packages/
-├── astron/
-│   ├── foo/
-│   └── bar/
-```
-# Python Coding Conventions & Style Guide
-
-## Python Version Policy
-
-- **Default Python version:** 3.11
-- **Minimum supported version:** 3.10
-- Do **not** support Python 3.8 or 3.9 unless absolutely required by a dependency. Do not support Python 2 or any Python 3 version older than 3.10.
 ---
 description: 'Python coding conventions and guidelines'
 applyTo: '**/*.py'
 ---
 
-
 # Python Coding Conventions & Style Guide
 
-## 1. Default Coding Style: Google Python Style Guide
+## 0. Overview
 
-- All Python code **must** follow the [Google Python Style Guide](https://google.github.io/styleguide/pyguide.html) as the default for naming, formatting, docstrings, and code organization.
-- Use [Google-style docstrings](https://google.github.io/styleguide/pyguide.html#38-comments-and-docstrings) for all public modules, classes, methods, and functions.
-- If a style or convention is not covered by the Google guide, follow the supplemental checklists below.
+This document outlines the coding conventions and style guidelines for Python projects. It covers Python version policies, project structure, type hinting, coding practices, testing, and practical examples.
+
+## 1. Python Version Policy
+
+- Minimum Supported Version: Python 3.10
+- Recommended Version: Python 3.11 or later
+- Deprecated Versions: Python 3.9 and earlier
+- Unsupported Versions: Python 2.x
+- MUST **NOT** use deprecated or obsolete Python features.
 
 ---
 
-## 2. Supplemental: Modern Python 3.10+ Coding Style & Typing Checklist
+## 2. Default Coding Style: Google Python Style Guide
 
-### 📖 Basic Style
-- Follow PEP 8: 4-space indentation, line length ≤ 88/100, import order (stdlib → third-party → local).
-- Follow PEP 257: Every public function, class, and module must have a docstring.
-- Follow PEP 20 (The Zen of Python): Clarity, simplicity, and readability first.
+- Follow the Google Python Style Guide as the baseline for coding style.
+- If there are conflicts between Google Style and Other Guidelines, prefer Google Style unless there is a compelling reason not to.
 
-### 📝 Type Hints (Python 3.10+)
-- PEP 484: Use type hints consistently for all public APIs.
-- PEP 561: If your package provides type hints, include a `py.typed` file at the package root.
-- PEP 585: Prefer built-in generics (`list`, `dict`) instead of `List`, `Dict`.
-- PEP 604: Use `int | str` for unions instead of `Union[int, str]`.
+---
+
+## 3. Project Structure & Packaging
+
+### Project Structure
+
+- PEP 420: Use implicit namespace packages for multi-directory packages.
+
+### Project Packaging
+
+- PEP 517/518: Use `pyproject.toml` for build system configuration.
+    - Use `uv` and `hatchling` for building and packaging.
+- PEP 621: Use `pyproject.toml` for project metadata (name, version, description, authors, license, dependencies).
+- PEP 561: For libraries, include type information by adding a `py.typed` file in the package directory.
+
+### Single application Example
+
+For a single application, the project name should be the same as the package name. For example, a project named `myapp` would have the following structure:
+
+
+```plaintext
+myapp/                       # Project root, `myapp` is the project name
+├── src/                     # Source code directory
+│   └── myapp/               # Package namespace from project name
+│       ├── __init__.py      # Package initializer
+│       ├── main.py          # Main application module
+│       └── py.typed         # Marker file for type information
+├── tests/                   # Tests directory
+│   ├── __init__.py          # Test package initializer
+│   └── test_main.py         # Example test module
+└── pyproject.toml           # Build system and project metadata
+```
+
+If `project.scripts` is defined in `pyproject.toml` as below:
+
+```toml
+[project.scripts]
+myapp = "myapp.main:main"
+```
+
+For running the application after installation, use:
+
+```sh
+# run the installed script
+myapp
+# or
+python -m myapp.main
+```
+
+### Individual Package Example
+
+For individual libraries, the project name should be the same as the package name. For example, a project named `mylib` would have the following structure:
+
+```plaintext
+mylib/                      # Project root, `mylib` is the project name
+├── src/                    # Source code directory
+│   └── mylib/              # Package namespace from project name
+│       ├── __init__.py     # Package initializer
+│       ├── module.py       # Example module
+│       └── py.typed        # Marker file for type information
+├── tests/                  # Tests directory
+│   ├── __init__.py         # Test package initializer
+│   └── test_module.py      # Example test module
+├── scripts/                # Optional scripts directory
+│   └── cli.py              # Example script
+└── pyproject.toml          # Build system and project metadata
+```
+
+For importing the package in code, use:
+
+```python
+from mylib import module
+```
+
+If the project includes scripts, define them in `pyproject.toml` as below:
+
+```toml
+[project.scripts]
+mylib-cli = "mylib.scripts.cli:main"
+```
+
+For running the script after installation, use:
+
+```sh
+# run the installed script
+mylib-cli
+# or
+python -m mylib.scripts.cli
+```
+
+### Multi-Package Projects with Common Prefix Example
+
+For multi-package projects with a common prefix, the project name should be the common prefix followed by a hyphen and a suffix for each package. For example, a project named `astron-foo` would have the following structure:
+
+```plaintext
+astron-foo/                  # Project root, `astron-foo` is the project name
+├── src/                     # Source code directory
+│   └── astron/              # Top-level namespace from project name prefix `astron`
+│       └── foo/             # Package namespace from project name suffix `foo`
+│           ├── __init__.py  # Package initializer
+│           ├── module.py    # Example module
+│           └── py.typed     # Marker file for type information
+├── tests/                   # Tests directory
+│   ├── __init__.py          # Test package initializer
+│   └── test_module.py       # Example test module
+└── pyproject.toml           # Build system and project metadata
+```
+
+- Top-level namespace is derived from the common prefix (e.g., `astron`).
+- Package namespace is derived from the suffix (e.g., `foo`).
+
+For importing the package in code, use the full namespace:
+
+```python
+from astron.foo import module
+```
+
+Multi-package projects often do not include scripts. 
+
+---
+
+## 4. Type Hints & Typing Standards
+
+- PEP 484: Use type hints for all public functions and methods.
+- PEP 526: Use variable annotations for module-level and class-level variables.
+- PEP 563: Consider using `from __future__ import annotations` for forward compatibility and to enable postponed evaluation of annotations (optional but recommended for Python 3.10+).
+- PEP 585: Use built-in generics (`list`, `dict`) instead of `List`, `Dict`.
 - PEP 586: Use `Literal` for constant values.
 - PEP 589: Use `TypedDict` for dict-like structured data.
 - PEP 544: Use `Protocol` for structural subtyping (duck typing with types).
-- PEP 560: Internal improvements to typing — relevant if you’re writing custom typing extensions.
+- PEP 560: Follow for internal improvements to typing — relevant if you're writing custom typing extensions.
 
-### 📦 Project Structure & Distribution
-- For any project named with the `astron-***` prefix, you MUST use [PEP 420](https://peps.python.org/pep-0420/) namespace packages to enable multiple distributions to share the same namespace.
-- The top-level namespace folder MUST be named `astron` and MUST NOT contain an `__init__.py` file.
-- This allows all `astron-***` projects to be installed together and share the `astron` namespace.
-- Docstrings: Use Google-style or NumPy-style docstrings for compatibility with Sphinx/mkdocstrings.
-- Packaging: Use `pyproject.toml` (PEP 517/518) as the modern build configuration baseline.
+**For Python 3.10+:**
 
-### 🔍 Practical Guidelines
-- Function signatures: All public APIs must have complete type hints.
-- Error handling: Custom exceptions should inherit from `Exception` and provide clear messages.
-- Testing: Combine type checking (`mypy`/`pyright`), linting (`flake8`, `ruff`), and unit tests.
-- Consistency: Enforce a formatter (`black` or `ruff`) and import sorter (`isort` or `ruff`).
-- Source code MUST be free of type checking/linting errors.
-
----
-
-## 3. Modern Python 3.10+ / 3.11+ Typing & Style Additions
-
-
-
-### Python 3.10+
 - PEP 604: Use `int | str` for unions instead of `Union[int, str]`.
 - PEP 612: Use `ParamSpec` for higher-order functions and decorators.
 - PEP 647: Use `TypeGuard` for type narrowing.
 - PEP 673: Use `Self` for methods returning the instance.
 - PEP 655: Use `Required` / `NotRequired` for `TypedDict` fields.
 
-### Python 3.11+
+**For Python 3.11+:**
+
 - PEP 646: Use `TypeVarTuple` for variadic generics (e.g., `*Ts`).
 - PEP 675: Use `LiteralString` for safe string formatting (e.g., SQL).
 - PEP 681: Use `dataclass_transform` for libraries like Pydantic/SQLAlchemy to integrate with type checkers.
 
+**For Python 3.12+:**
+
+- PEP 695: Prefer the new type parameter syntax for generics in classes and functions when targeting 3.12+ (keep `typing.TypeVar`/`typing.Generic` for 3.10/3.11 compatibility).
+
 ---
 
-## 4. General Coding & Documentation Practices
+## 5. General Coding & Documentation Practices
 
 - Always prioritize readability, clarity, and maintainability.
 - Break down complex functions into smaller, testable units.
@@ -161,18 +188,18 @@ applyTo: '**/*.py'
 
 ---
 
-## 5. Testing & Edge Cases
+## 6. Testing & Edge Cases
 
 - Always include test cases for critical paths and edge cases (empty input, invalid types, large datasets, etc.).
 - Write unit tests for all public functions and document them with Google-style docstrings.
-- Use type checkers (`mypy`, `pyright`), linters (`flake8`, `ruff`), and formatters (`black`, `ruff`).
+- Use type checkers (`mypy`, `pyright`), linters (`ruff`), and formatters (`black` or `ruff`).
 
 ---
 
+## 7. Practical Examples: Most Common Styles & Conventions
 
-## 6. Practical Examples: Most Common Styles & Conventions
+### 7.1 Imports
 
-### 6.1 Imports
 ```python
 # Standard library imports first, then third-party, then local
 import os
@@ -184,7 +211,8 @@ import requests
 from myproject.utils import helper_function
 ```
 
-### 6.2 Function Definitions & Type Hints
+### 7.2 Function Definitions & Type Hints
+
 ```python
 def add(x: int, y: int) -> int:
     """Adds two integers.
@@ -199,7 +227,8 @@ def add(x: int, y: int) -> int:
     return x + y
 ```
 
-### 6.3 Class Definition & Docstring
+### 7.3 Class Definition & Docstring
+
 ```python
 class Person:
     """Represents a person with a name and age."""
@@ -213,17 +242,21 @@ class Person:
         return f"Hello, my name is {self.name}."
 ```
 
-### 6.4 Constants
+### 7.4 Constants
+
 ```python
-PI: float = 3.14159  # Module-level constant, all uppercase
+PI: float = 3.14159  # Module-level constant
+MAX_CONNECTIONS: int = 100  # Use UPPER_CASE for module-level constants
 ```
 
-### 6.5 Google-Style Docstring for Module
-"""
-This module provides math utility functions.
-"""
+### 7.5 Google-Style Docstring for Module
 
-### 6.6 Exception Handling
+```python
+"""This module provides math utility functions."""
+```
+
+### 7.6 Exception Handling
+
 ```python
 class CustomError(Exception):
     """Custom exception with a clear message."""
@@ -235,7 +268,8 @@ def divide(a: float, b: float) -> float:
     return a / b
 ```
 
-### 6.7 Property Decorators
+### 7.7 Property Decorators
+
 ```python
 class Rectangle:
     def __init__(self, width: float, height: float) -> None:
@@ -248,7 +282,8 @@ class Rectangle:
         return self._width * self._height
 ```
 
-### 6.8 Type Aliases, Literals, TypedDict, Protocol
+### 7.8 Type Aliases, Literals, TypedDict, Protocol
+
 ```python
 from typing import Literal, TypedDict, Protocol
 
@@ -270,7 +305,8 @@ def set_mode(mode: Literal["r", "w"]) -> None:
     pass
 ```
 
-### 6.9 Data Classes
+### 7.9 Data Classes
+
 ```python
 from dataclasses import dataclass
 
@@ -281,11 +317,10 @@ class User:
     is_active: bool = True
 ```
 
-### 6.10 Unions, Optionals, and Modern Typing
-```python
-from typing import Optional
+### 7.10 Unions, Optionals, and Modern Typing
 
-def find_user(user_id: int) -> Optional[User]:
+```python
+def find_user(user_id: int) -> User | None:
     """Returns a User if found, else None."""
     # ...
     return None
@@ -295,7 +330,8 @@ def process(value: int | str) -> str:
     return str(value)
 ```
 
-### 6.11 Context Managers
+### 7.11 Context Managers
+
 ```python
 from contextlib import contextmanager
 
@@ -308,7 +344,8 @@ def managed_resource():
         print("Resource released")
 ```
 
-### 6.12 Testing Example (pytest)
+### 7.12 Testing Example (pytest)
+
 ```python
 import pytest
 
@@ -320,7 +357,8 @@ def test_divide_zero():
         divide(1, 0)
 ```
 
-### 6.13 Formatting, Linting, and Imports
+### 7.13 Formatting, Linting, and Imports
+
 ```sh
 # Format code
 black .
@@ -330,7 +368,8 @@ ruff .
 isort .
 ```
 
-### 6.14 Edge Case Handling
+### 7.14 Edge Case Handling
+
 ```python
 def safe_get(d: dict, key: str, default: str = "") -> str:
     """Safely get a value from a dict, with a default."""
@@ -338,8 +377,10 @@ def safe_get(d: dict, key: str, default: str = "") -> str:
 ```
 
 
-### 6.15 Forward References
-Use standard Python 3.10+ syntax for forward references. String annotations or `from __future__ import annotations` are not required for 3.10+.
+### 7.15 Forward References
+
+Use quoted forward references for Python 3.10–3.12 compatibility. This avoids reliance on evaluation semantics at runtime and works consistently with type checkers.
+
 ```python
 class TreeNode:
     def __init__(self, left: 'TreeNode' | None = None, right: 'TreeNode' | None = None) -> None:
@@ -349,15 +390,26 @@ class TreeNode:
 
 ---
 
----
+## 8. References
 
-## 7. References
+<!-- Links below are external URLs, not local file paths -->
 
-- [Google Python Style Guide](https://google.github.io/styleguide/pyguide.html)
-- [PEP 8 – Style Guide for Python Code](https://peps.python.org/pep-0008/)
-- [PEP 257 – Docstring Conventions](https://peps.python.org/pep-0257/)
-- [PEP 484 – Type Hints](https://peps.python.org/pep-0484/)
-- [PEP 585 – Type Hinting Generics In Standard Collections](https://peps.python.org/pep-0585/)
-- [PEP 604 – Allow writing union types as X | Y](https://peps.python.org/pep-0604/)
-- [PEP 673 – Self Type](https://peps.python.org/pep-0673/)
-- [PEP 681 – Data Class Transforms](https://peps.python.org/pep-0681/)
+- Google Python Style Guide: https://google.github.io/styleguide/pyguide.html
+- PEP 420: https://www.python.org/dev/peps/pep-0420/
+- PEP 484: https://www.python.org/dev/peps/pep-0484/
+- PEP 526: https://www.python.org/dev/peps/pep-0526/
+- PEP 563: https://www.python.org/dev/peps/pep-0563/
+- PEP 585: https://www.python.org/dev/peps/pep-0585/
+- PEP 586: https://www.python.org/dev/peps/pep-0586/
+- PEP 589: https://www.python.org/dev/peps/pep-0589/
+- PEP 544: https://www.python.org/dev/peps/pep-0544/
+- PEP 560: https://www.python.org/dev/peps/pep-0560/
+- PEP 604: https://www.python.org/dev/peps/pep-0604/
+- PEP 612: https://www.python.org/dev/peps/pep-0612/
+- PEP 646: https://www.python.org/dev/peps/pep-0646/
+- PEP 647: https://www.python.org/dev/peps/pep-0647/
+- PEP 655: https://www.python.org/dev/peps/pep-0655/
+- PEP 673: https://www.python.org/dev/peps/pep-0673/
+- PEP 675: https://www.python.org/dev/peps/pep-0675/
+- PEP 681: https://www.python.org/dev/peps/pep-0681/
+- PEP 695: https://www.python.org/dev/peps/pep-0695/
