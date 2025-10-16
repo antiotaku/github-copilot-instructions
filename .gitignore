@@ -1,7 +1,7 @@
 # Ignore everything in .github
 .github/*
 
-# Except specific files and folders to be tracked
+# Except github copilot
 !.github/copilot-instructions.md
 !.github/dependabot.yml
 !.github/CODEOWNERS
